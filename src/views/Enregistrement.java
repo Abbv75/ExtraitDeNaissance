@@ -5,9 +5,19 @@
 package views;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+
+import javax.swing.JOptionPane;
+
 import com.toedter.calendar.JDateChooser;
 import com.toedter.calendar.JTextFieldDateEditor;
+import object.Extrait;
+
+import java.sql.DriverManager;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 /**
  *
@@ -20,6 +30,7 @@ public class Enregistrement extends javax.swing.JFrame {
      */
     public Enregistrement() {
         initComponents();
+        chargerTableau();
         
     }
 
@@ -32,6 +43,7 @@ public class Enregistrement extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jCalendar1 = new com.toedter.calendar.JCalendar();
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jPanel3 = new javax.swing.JPanel();
@@ -54,7 +66,7 @@ public class Enregistrement extends javax.swing.JFrame {
         date_Naissance = new com.toedter.calendar.JDateChooser();
         date_delivrance = new com.toedter.calendar.JDateChooser();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        table_extrait = new javax.swing.JTable();
         jPanel2 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
         btn_modifier = new javax.swing.JButton();
@@ -132,9 +144,17 @@ public class Enregistrement extends javax.swing.JFrame {
                 txt_nomActionPerformed(evt);
             }
         });
+        txt_nom.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                txt_nomPropertyChange(evt);
+            }
+        });
         txt_nom.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 txt_nomKeyPressed(evt);
+            }
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_nomKeyTyped(evt);
             }
         });
 
@@ -243,15 +263,28 @@ public class Enregistrement extends javax.swing.JFrame {
         btn_reset.setFont(new java.awt.Font("Liberation Sans", 1, 24)); // NOI18N
         btn_reset.setForeground(new java.awt.Color(255, 255, 255));
         btn_reset.setText("RESET ALL");
-        btn_reset.setEnabled(false);
+        btn_reset.setEnabled(true);
+        btn_reset.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_resetActionPerformed(evt);
+            }
+        });
 
         date_Naissance.setBorder(javax.swing.BorderFactory.createTitledBorder("Date de naissance"));
-        date_Naissance.setDateFormatString("yyyy/MM/dd");
+        date_Naissance.setDateFormatString("yyyy-MM-dd");
         date_Naissance.setOpaque(false);
+        date_Naissance.addInputMethodListener(new java.awt.event.InputMethodListener() {
+            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
+            }
+            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
+                date_NaissanceInputMethodTextChanged(evt);
+            }
+        });
 
         date_delivrance.setBorder(javax.swing.BorderFactory.createTitledBorder("date de delivrance"));
-        date_delivrance.setDateFormatString("yyyy/MM/dd");
+        date_delivrance.setDateFormatString("yyyy-MM-dd");
         date_delivrance.setEnabled(false);
+        date_delivrance.setOpaque(false);
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -338,9 +371,9 @@ public class Enregistrement extends javax.swing.JFrame {
 
         jScrollPane1.setViewportView(jPanel3);
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        table_extrait.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
+                {"4", "45", "45", "45", null},
                 {null, null, null, null, null},
                 {null, null, null, null, null},
                 {null, null, null, null, null}
@@ -349,7 +382,12 @@ public class Enregistrement extends javax.swing.JFrame {
                 "Num Document", "Nom", "Prenom", "Date Naiss", "Sexe"
             }
         ));
-        jScrollPane2.setViewportView(jTable1);
+        table_extrait.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                table_extraitMouseClicked(evt);
+            }
+        });
+        jScrollPane2.setViewportView(table_extrait);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -367,7 +405,7 @@ public class Enregistrement extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 444, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addContainerGap())
         );
@@ -376,9 +414,11 @@ public class Enregistrement extends javax.swing.JFrame {
 
         jPanel4.setBackground(new java.awt.Color(153, 153, 153));
 
-        btn_modifier.setBackground(new java.awt.Color(204, 204, 204));
+        btn_modifier.setBackground(new java.awt.Color(0, 51, 255));
         btn_modifier.setFont(new java.awt.Font("Liberation Sans", 1, 13)); // NOI18N
+        btn_modifier.setForeground(new java.awt.Color(255, 255, 255));
         btn_modifier.setText("Modifier");
+        btn_modifier.setEnabled(false);
         btn_modifier.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_modifierActionPerformed(evt);
@@ -878,14 +918,237 @@ public class Enregistrement extends javax.swing.JFrame {
 
     private void btn_supprimerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_supprimerActionPerformed
         // TODO add your handling code here:
+        try{
+            if(!(this.txt_num.getText().equals("") || this.txt_num.getText()==null)){
+                Extrait extrait_tmp= new Extrait(Integer.valueOf(txt_num.getText()));
+        
+                System.out.println("Vous allez suprimer l'objet\n"+extrait_tmp);
+                if(extrait_tmp.supprimer()){
+                    viderChamps();
+                    chargerTableau();
+                    JOptionPane.showMessageDialog(null, "supprimer avec succes", "supprimer reussi", JOptionPane.INFORMATION_MESSAGE);
+                }
+                else{
+                    JOptionPane.showMessageDialog(null, "suppression echouer", "supprimer echouer", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+            else{
+                JOptionPane.showMessageDialog(null, "suppression echouer veuillez donnez le num du document", "suppression echouer", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Une erreur est survenue", "Erreur", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btn_supprimerActionPerformed
 
     private void btn_ajouterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_ajouterActionPerformed
         // TODO add your handling code here:
+        try{
+            if(verifierChampSiRemplis()){
+                int sexeValue=2;
+                if(combo_sexe.getSelectedItem()!="Femme"){
+                    sexeValue=1;
+                }
+                Date date_naissanceValue= new Date();
+                if(date_Naissance.getDate()!=null){
+                    date_naissanceValue= date_Naissance.getDate();
+                }
+                Date date_delivrenceValue= new Date();
+                if(date_delivrance.getDate()!=null){
+                    date_delivrenceValue= date_delivrance.getDate();
+                }
+                Extrait extrait_tmp= new Extrait(
+                    Integer.valueOf(txt_num.getText()), 
+                    sexeValue, 
+                    date_naissanceValue, 
+                    date_delivrenceValue, 
+                    txt_nom.getText(), 
+                    txt_prenom.getText(), 
+                    txt_lieuNaissance.getText(), 
+                    txt_nomPere.getText(), 
+                    txt_prenom.getText(), 
+                    txt_domicilePere.getText(), 
+                    txt_professionPere.getText(), 
+                    txt_nomMere.getText(), 
+                    txt_prenomMere.getText(), 
+                    txt_domicileMere.getText(),
+                    txt_professionMere.getText()
+                );
+        
+                System.out.println("Vous allez ajouter l'objet\n"+extrait_tmp);
+                if(extrait_tmp.ajouter()){
+                    viderChamps();
+                    chargerTableau();
+                    JOptionPane.showMessageDialog(null, "ajouter avec succes", "ajoue reussi", JOptionPane.INFORMATION_MESSAGE);
+                }
+                else{
+                    JOptionPane.showMessageDialog(null, "ajoue echouer", "ajoue echouer", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+            else{
+                JOptionPane.showMessageDialog(null, "ajoue echouer veuillez remplir tout les champs", "ajoue echouer", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Une erreur est survenue", "Erreur", JOptionPane.ERROR_MESSAGE);
+        }
+        
     }//GEN-LAST:event_btn_ajouterActionPerformed
+
+    private boolean verifierChampSiRemplis(){
+        if(
+            this.txt_num.getText().equals("") || this.txt_num.getText()==null ||
+            this.txt_nom.getText().equals("") || this.txt_nom.getText()==null ||
+            this.txt_prenom.getText().equals("") || this.txt_prenom.getText()==null ||
+            this.txt_lieuNaissance.getText().equals("") || this.txt_lieuNaissance.getText()==null ||
+            this.txt_nomPere.getText().equals("") || this.txt_nomPere.getText()==null ||
+            this.txt_prenomPere.getText().equals("") || this.txt_prenomPere.getText()==null ||
+            this.txt_domicilePere.getText().equals("") || this.txt_domicilePere.getText()==null ||
+            this.txt_professionPere.getText().equals("") || this.txt_professionPere.getText()==null ||
+            this.txt_nomMere.getText().equals("") || this.txt_nomMere.getText()==null ||
+            this.txt_prenomMere.getText().equals("") || this.txt_prenomMere.getText()==null ||
+            this.txt_domicileMere.getText().equals("") || this.txt_domicileMere.getText()==null ||
+            this.txt_professionMere.getText().equals("") || this.txt_professionMere.getText()==null
+        ){
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
+
+    private void activeBtnModifierEtSupprimer(){
+        if(!(this.txt_num.getText().equals("") || this.txt_num.getText()==null)){
+            Extrait extrait_tmp= new Extrait(Integer.valueOf(txt_num.getText()));
+            if(extrait_tmp.getExiste()){
+                if(verifierChampSiRemplis()){
+                    this.btn_modifier.setEnabled(true);
+                }
+                else{
+                    this.btn_modifier.setEnabled(false);
+                }
+                this.btn_supprimer.setEnabled(true);
+                this.date_delivrance.setEnabled(true);
+
+            }
+            else{
+                this.btn_modifier.setEnabled(false);
+                this.btn_supprimer.setEnabled(false);
+                this.date_delivrance.setEnabled(false);
+            }
+        }
+        
+    }
+
+    private void chargerTableau(){
+        try{
+            ResultSet resultSet, resultSet2;
+            String dbName="mairiedb";
+            String urlBDD= "jdbc:mysql://localhost:3306/"+dbName;
+            String user= "root";
+            String passwd = "";
+            Connection conn=null;
+            try {
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                conn = DriverManager.getConnection(urlBDD, user, passwd);
+                System.out.println("Connexion reussi");
+            }
+            catch (Exception e){
+                e.printStackTrace();
+                System.out.println("Erreur de connexion");
+            }
+
+            String query= "SELECT * FROM extrait";
+            PreparedStatement state= conn.prepareStatement(query);
+            resultSet=state.executeQuery();
+
+            String query_cout= "SELECT COUNT(*) AS nombreLigne FROM extrait";
+            PreparedStatement state2= conn.prepareStatement(query_cout);
+            resultSet2=state2.executeQuery();
+            if(resultSet2.next()){
+                int i=0;
+                // resultSet2.getInt("nombreLigne");
+                Object tableValue[][]=new Object[resultSet2.getInt("nombreLigne")][5];
+
+                while(resultSet.next()){   
+                    String sexe="Femme"; 
+                    if(resultSet.getInt("sexe")!=2){
+                        sexe="Homme";
+                    }
+                    tableValue[i][0]= resultSet.getString("num");                
+                    tableValue[i][1]= resultSet.getString("nomE");                
+                    tableValue[i][2]= resultSet.getString("prenomE");                
+                    tableValue[i][3]= resultSet.getString("dateNaiss");                
+                    tableValue[i][4]= sexe;     
+                    i++;           
+                }
+                table_extrait.setModel(new javax.swing.table.DefaultTableModel(
+                    tableValue,
+                    new String [] {
+                        "Num Document", "Nom", "Prenom", "Date Naiss", "Sexe"
+                    }
+                ));
+            }
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            System.out.println("Une erreur est survenue lors de la recuperation des extraits");
+        }
+    }
 
     private void btn_modifierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_modifierActionPerformed
         // TODO add your handling code here:
+        try{
+            if(verifierChampSiRemplis()){
+                int sexeValue=2;
+                if(combo_sexe.getSelectedItem()!="Femme"){
+                    sexeValue=1;
+                }
+                Date date_naissanceValue= new Date();
+                if(date_Naissance.getDate()!=null){
+                    date_naissanceValue= date_Naissance.getDate();
+                }
+                Date date_delivrenceValue= new Date();
+                if(date_delivrance.getDate()!=null){
+                    date_delivrenceValue= date_delivrance.getDate();
+                }
+                Extrait extrait_tmp= new Extrait(
+                    Integer.valueOf(txt_num.getText()), 
+                    sexeValue, 
+                    date_naissanceValue, 
+                    date_delivrenceValue, 
+                    txt_nom.getText(), 
+                    txt_prenom.getText(), 
+                    txt_lieuNaissance.getText(), 
+                    txt_nomPere.getText(), 
+                    txt_prenom.getText(), 
+                    txt_domicilePere.getText(), 
+                    txt_professionPere.getText(), 
+                    txt_nomMere.getText(), 
+                    txt_prenomMere.getText(), 
+                    txt_domicileMere.getText(),
+                    txt_professionMere.getText()
+                );
+        
+                System.out.println("Vous allez ajouter l'objet\n"+extrait_tmp);
+                if(extrait_tmp.modifier()){
+                    chargerTableau();
+                    JOptionPane.showMessageDialog(null, "modifier avec succes", "modifier reussi", JOptionPane.INFORMATION_MESSAGE);
+                }
+                else{
+                    JOptionPane.showMessageDialog(null, "modifier echouer", "modifier echouer", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+            else{
+                JOptionPane.showMessageDialog(null, "ajoue echouer veuillez remplir tout les champs", "ajoue echouer", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Une erreur est survenue", "Erreur", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btn_modifierActionPerformed
 
     private void txt_lieuNaissanceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_lieuNaissanceActionPerformed
@@ -898,7 +1161,7 @@ public class Enregistrement extends javax.swing.JFrame {
 
     private void txt_numKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_numKeyPressed
         // TODO add your handling code here:
-        chargerVueRendue(false);
+        chargerVueRendue();
     }//GEN-LAST:event_txt_numKeyPressed
 
     private void txt_prenomKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_prenomKeyTyped
@@ -915,75 +1178,139 @@ public class Enregistrement extends javax.swing.JFrame {
 
     private void date_NaissancePropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_date_NaissancePropertyChange
         // TODO add your handling code here:
-        chargerVueRendue(false);
+        chargerVueRendue();
     }//GEN-LAST:event_date_NaissancePropertyChange
 
     private void txt_nomKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_nomKeyPressed
         // TODO add your handling code here:
-        chargerVueRendue(false);
+        chargerVueRendue();
     }//GEN-LAST:event_txt_nomKeyPressed
 
     private void txt_prenomKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_prenomKeyPressed
         // TODO add your handling code here:
-        chargerVueRendue(false);
+        chargerVueRendue();
     }//GEN-LAST:event_txt_prenomKeyPressed
 
     private void txt_lieuNaissanceKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_lieuNaissanceKeyPressed
         // TODO add your handling code here:
-        chargerVueRendue(false);
+        chargerVueRendue();
     }//GEN-LAST:event_txt_lieuNaissanceKeyPressed
 
     private void combo_sexePropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_combo_sexePropertyChange
         // TODO add your handling code here:
-        chargerVueRendue(false);
+        chargerVueRendue();
     }//GEN-LAST:event_combo_sexePropertyChange
 
     private void txt_nomPereKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_nomPereKeyPressed
         // TODO add your handling code here:
-        chargerVueRendue(false);
+        chargerVueRendue();
     }//GEN-LAST:event_txt_nomPereKeyPressed
 
     private void txt_prenomPereKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_prenomPereKeyPressed
         // TODO add your handling code here:
-        chargerVueRendue(false);
+        chargerVueRendue();
     }//GEN-LAST:event_txt_prenomPereKeyPressed
 
     private void txt_domicilePereKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_domicilePereKeyPressed
         // TODO add your handling code here:
-        chargerVueRendue(false);
+        chargerVueRendue();
     }//GEN-LAST:event_txt_domicilePereKeyPressed
 
     private void txt_professionPereKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_professionPereKeyPressed
         // TODO add your handling code here:
-        chargerVueRendue(false);
+        chargerVueRendue();
     }//GEN-LAST:event_txt_professionPereKeyPressed
 
     private void txt_nomMereKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_nomMereKeyPressed
         // TODO add your handling code here:
-        chargerVueRendue(false);
+        chargerVueRendue();
     }//GEN-LAST:event_txt_nomMereKeyPressed
 
     private void txt_prenomMereKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_prenomMereKeyPressed
         // TODO add your handling code here:
-        chargerVueRendue(false);
+        chargerVueRendue();
     }//GEN-LAST:event_txt_prenomMereKeyPressed
 
     private void txt_domicileMereKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_domicileMereKeyPressed
         // TODO add your handling code here:
-        chargerVueRendue(false);
+        chargerVueRendue();
     }//GEN-LAST:event_txt_domicileMereKeyPressed
 
     private void txt_professionMereKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_professionMereKeyPressed
         // TODO add your handling code here:
-        chargerVueRendue(false);
+        chargerVueRendue();
     }//GEN-LAST:event_txt_professionMereKeyPressed
 
     private void date_delivrencePropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_date_delivrencePropertyChange
         // TODO add your handling code here:
     }//GEN-LAST:event_date_delivrencePropertyChange
 
-    public void chargerVueRendue(Object dateDoc){
-        SimpleDateFormat DateFor = new SimpleDateFormat("yyyy/MM/dd");
+    private void date_NaissanceInputMethodTextChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_date_NaissanceInputMethodTextChanged
+        // TODO add your handling code here:
+        chargerVueRendue();
+    }//GEN-LAST:event_date_NaissanceInputMethodTextChanged
+
+    private void txt_nomKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_nomKeyTyped
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txt_nomKeyTyped
+
+    private void txt_nomPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_txt_nomPropertyChange
+        // TODO add your handling code here:
+//        chargerVueRendue();
+//        activeBtnModifierEtSupprimer();
+    }//GEN-LAST:event_txt_nomPropertyChange
+
+    private void table_extraitMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_table_extraitMouseClicked
+        // TODO add your handling code here:
+        int numClique=Integer.valueOf((String)table_extrait.getValueAt(table_extrait.getSelectedRow(), 0));
+
+        Extrait extrait_tmp= new Extrait(numClique);
+        txt_num.setText(Integer.toString(extrait_tmp.getNum()));
+        txt_nom.setText(extrait_tmp.getNomE());
+        txt_prenom.setText(extrait_tmp.getPrenomE());
+        txt_lieuNaissance.setText(extrait_tmp.getLieuNaiss());
+        date_Naissance.setDate(extrait_tmp.getDateNaiss());
+        date_delivrance.setDate(extrait_tmp.getDateDeliv());
+        combo_sexe.setSelectedItem("Femme");
+        if(extrait_tmp.getSexe()!=2){
+            combo_sexe.setSelectedItem("Homme");
+        }
+        txt_nomPere.setText(extrait_tmp.getNomP());
+        txt_prenomPere.setText(extrait_tmp.getPrenomP());
+        txt_domicilePere.setText(extrait_tmp.getDomicileP());
+        txt_professionPere.setText(extrait_tmp.getProffessionP());
+        txt_nomMere.setText(extrait_tmp.getNomM());
+        txt_prenomMere.setText(extrait_tmp.getPrenomM());
+        txt_domicileMere.setText(extrait_tmp.getDomicileM());
+        txt_professionMere.setText(extrait_tmp.getProffessionM());
+
+        chargerVueRendue();   
+    }//GEN-LAST:event_table_extraitMouseClicked
+
+    private void btn_resetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_resetActionPerformed
+        // TODO add your handling code here:
+        viderChamps();
+    }//GEN-LAST:event_btn_resetActionPerformed
+
+    public void viderChamps(){
+        txt_num.setText("");
+        txt_nom.setText("");
+        txt_prenom.setText("");
+        txt_lieuNaissance.setText("");
+        date_Naissance.setDate(null);
+        date_delivrance.setDate(null);
+        txt_nomPere.setText("");
+        txt_prenomPere.setText("");
+        txt_domicilePere.setText("");
+        txt_professionPere.setText("");
+        txt_nomMere.setText("");
+        txt_prenomMere.setText("");
+        txt_domicileMere.setText("");
+        txt_professionMere.setText("");
+    }
+    public void chargerVueRendue(){
+        activeBtnModifierEtSupprimer();
+        SimpleDateFormat DateFor = new SimpleDateFormat("yyyy-MM-dd");
         String dateNaissValue;
         String dateDelivrenceValue;
 
@@ -994,11 +1321,11 @@ public class Enregistrement extends javax.swing.JFrame {
             dateNaissValue= DateFor.format(date_Naissance.getDate());
         }
         
-        if(!(boolean)dateDoc){
+        if(!date_delivrance.isEnabled()){
             dateDelivrenceValue= DateFor.format(new Date());
         }
         else{
-            dateDelivrenceValue=(String) dateDoc;
+            dateDelivrenceValue= DateFor.format(date_delivrance.getDate());
         }
         
         label_dateDelivrence.setText(dateDelivrenceValue);
@@ -1063,6 +1390,7 @@ public class Enregistrement extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> combo_sexe;
     private com.toedter.calendar.JDateChooser date_Naissance;
     private com.toedter.calendar.JDateChooser date_delivrance;
+    private com.toedter.calendar.JCalendar jCalendar1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel12;
@@ -1097,7 +1425,6 @@ public class Enregistrement extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
-    private javax.swing.JTable jTable1;
     private javax.swing.JLabel label_dateDelivrence;
     private javax.swing.JLabel label_dateNaissance;
     private javax.swing.JLabel label_domicileMere;
@@ -1113,6 +1440,7 @@ public class Enregistrement extends javax.swing.JFrame {
     private javax.swing.JLabel label_professionMere;
     private javax.swing.JLabel label_professionPere;
     private javax.swing.JLabel label_sexe;
+    private javax.swing.JTable table_extrait;
     private javax.swing.JTextField txt_domicileMere;
     private javax.swing.JTextField txt_domicilePere;
     private javax.swing.JTextField txt_lieuNaissance;
