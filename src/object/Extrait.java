@@ -203,7 +203,7 @@ public class Extrait extends ExtraitDAO{
                 this.dateNaiss=new SimpleDateFormat("yyyy-MM-dd").parse(this.resultSet.getString("dateNaiss"));
                 this.dateDeliv=new SimpleDateFormat("yyyy-MM-dd").parse(this.resultSet.getString("dateDeliv"));
                 this.lieuNaiss=this.resultSet.getString("lieuNaiss");
-                this.sexe=Integer.valueOf(this.resultSet.getString("lieuNaiss"));
+                this.sexe=Integer.valueOf(this.resultSet.getString("sexe"));
                 this.nomP=this.resultSet.getString("nomP");
                 this.prenomP=this.resultSet.getString("prenomP");
                 this.domicileP=this.resultSet.getString("domicileP");

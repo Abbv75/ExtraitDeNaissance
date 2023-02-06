@@ -263,7 +263,7 @@ public class Enregistrement extends javax.swing.JFrame {
         btn_reset.setFont(new java.awt.Font("Liberation Sans", 1, 24)); // NOI18N
         btn_reset.setForeground(new java.awt.Color(255, 255, 255));
         btn_reset.setText("RESET ALL");
-        btn_reset.setEnabled(true);
+        btn_reset.setEnabled(false);
         btn_reset.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_resetActionPerformed(evt);
@@ -373,10 +373,7 @@ public class Enregistrement extends javax.swing.JFrame {
 
         table_extrait.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {"4", "45", "45", "45", null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
+
             },
             new String [] {
                 "Num Document", "Nom", "Prenom", "Date Naiss", "Sexe"
@@ -403,11 +400,11 @@ public class Enregistrement extends javax.swing.JFrame {
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 444, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 191, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jPanel2.setBackground(new java.awt.Color(250, 249, 221));
@@ -806,7 +803,7 @@ public class Enregistrement extends javax.swing.JFrame {
         });
 
         label_dateDelivrence.setFont(new java.awt.Font("Abyssinica SIL", 3, 14)); // NOI18N
-        label_dateDelivrence.setText("2000-01-01");
+        label_dateDelivrence.setText("--------------------");
 
         jLabel36.setFont(new java.awt.Font("Liberation Sans", 0, 16)); // NOI18N
         jLabel36.setForeground(new java.awt.Color(51, 51, 51));
@@ -830,13 +827,13 @@ public class Enregistrement extends javax.swing.JFrame {
                             .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addComponent(jLabel5)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(label_num, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addComponent(label_num, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel4))
                             .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addComponent(jLabel36)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(label_dateDelivrence, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel4)
+                                .addComponent(label_dateDelivrence, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                         .addGap(4, 4, 4))
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
@@ -892,9 +889,9 @@ public class Enregistrement extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -1020,24 +1017,29 @@ public class Enregistrement extends javax.swing.JFrame {
     }
 
     private void activeBtnModifierEtSupprimer(){
-        if(!(this.txt_num.getText().equals("") || this.txt_num.getText()==null)){
-            Extrait extrait_tmp= new Extrait(Integer.valueOf(txt_num.getText()));
-            if(extrait_tmp.getExiste()){
-                if(verifierChampSiRemplis()){
-                    this.btn_modifier.setEnabled(true);
+        try{
+            if(!(this.txt_num.getText().equals("") || this.txt_num.getText()==null)){
+                Extrait extrait_tmp= new Extrait(Integer.valueOf(txt_num.getText()));
+                if(extrait_tmp.getExiste()){
+                    if(verifierChampSiRemplis()){
+                        this.btn_modifier.setEnabled(true);
+                    }
+                    else{
+                        this.btn_modifier.setEnabled(false);
+                    }
+                    this.btn_supprimer.setEnabled(true);
+                    this.date_delivrance.setEnabled(true);
+
                 }
                 else{
                     this.btn_modifier.setEnabled(false);
+                    this.btn_supprimer.setEnabled(false);
+                    this.date_delivrance.setEnabled(false);
                 }
-                this.btn_supprimer.setEnabled(true);
-                this.date_delivrance.setEnabled(true);
-
             }
-            else{
-                this.btn_modifier.setEnabled(false);
-                this.btn_supprimer.setEnabled(false);
-                this.date_delivrance.setEnabled(false);
-            }
+        }
+        catch(Exception e){
+            e.printStackTrace();
         }
         
     }
@@ -1307,6 +1309,9 @@ public class Enregistrement extends javax.swing.JFrame {
         txt_prenomMere.setText("");
         txt_domicileMere.setText("");
         txt_professionMere.setText("");
+        btn_modifier.setEnabled(false);
+        btn_reset.setEnabled(false);
+        btn_supprimer.setEnabled(false);
     }
     public void chargerVueRendue(){
         activeBtnModifierEtSupprimer();
